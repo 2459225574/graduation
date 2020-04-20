@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cc.project.iot.mapper.IotHomeMapper">
+	<resultMap id="FuncEtResultMap" type="com.cc.project.iot.domain.FuncEt">
+		<id property="id" column="id"/>
+		<result property="eId" column="e_id"/>
+		<result property="name" column="name"/>
+		<result property="driveId" column="drive_id"/>
+		<result property="type" column="type"/>
+		<result property="location" column="location"/>
+		<result property="description" column="description"/>
+		<result property="time" column="time"/>
+		<result property="deptName" column="dept_name"/>
+	</resultMap>
+
+	<sql id="func_equipment">
+		select fe.id,fe.e_id,fe.description,fe.drive_id,fe.location,fe.time,fe.type,fe.name
+	</sql>
+
+	<!--查询主用户组和其它用户组，sys_user和func_user_dept两张表-->
+	<select id="getFuncEtByUserId" resultMap="FuncEtResultMap">
+		<include refid="func_equipment"></include>
+		,all_group.dept_name from
+		(select fed.*,temp.dept_name from func_et_dept fed left join
+		(
+		(select sd.dept_id,sd.dept_name from sys_dept sd where sd.dept_id = (select su.dept_id from sys_user su where su.user_id = #{user_id}))
+		union
+		(select sd.dept_id,sd.dept_name from(select * from func_user_dept fud WHERE fud.user_id = #{user_id}) temp left join sys_dept sd on temp.dept_id = sd.dept_id)
+		)
+		as temp on fed.dept_id = temp.dept_id where temp.dept_name is not null) as all_group
+		left join func_et fe on all_group.e_id  = fe.id
+		where fe.type = #{funcEt.type}
+		<if test="funcEt.eId != null and funcEt.eId != 'null' and funcEt.eId !=''">
+			 and fe.e_id like concat('%',#{funcEt.eId},'%')
+		</if>
+		<if test="funcEt.name != null and funcEt.name != 'null' and funcEt.name !=''">
+			and fe.name like concat('%',#{funcEt.name},'%')
+		</if>
+		<if test="funcEt.deptName != null and funcEt.deptName != 'null' and funcEt.deptName !=''">
+			and all_group.dept_name like concat('%',#{funcEt.deptName},'%')
+		</if>
+		<if test="funcEt.beginTime != null and funcEt.beginTime != '' and funcEt.endTime != null and funcEt.endTime != ''">
+			and fe.time between #{funcEt.beginTime} and #{funcEt.endTime}
+		</if>
+	</select>
+    
+</mapper> 
