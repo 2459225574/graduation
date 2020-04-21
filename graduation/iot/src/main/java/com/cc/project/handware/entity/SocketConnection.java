@@ -34,9 +34,23 @@ public class SocketConnection {
         initUserAndEquipment();
     }
 
-    public void initUserAndEquipment() throws IOException {
-        writeByte(OrderSet.GET_ID);
-        this.equipment_id = readString();
+    public boolean initUserAndEquipment(){
+        try {
+            writeByte(OrderSet.GET_ID);
+            this.equipment_id = readString();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public boolean isConnection(){
+        try {
+            this.socket.sendUrgentData(Integer.MAX_VALUE);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public String readLen(Integer len) throws IOException {

@@ -43,4 +43,13 @@ public interface IotHomeService {
      * 删除设备
      */
     public int deleteEquipment(FuncEt funcEt);
+
+    /*
+     * 用户所有可用设备管理详情
+     */
+    public List<FuncEt> listAllEquipment(FuncEt funcEt);
+    /*
+     * 户所有可用设备不重复
+     */
+    public List<FuncEt> listAllEquipmentNoRepeat(FuncEt funcEt);
 }

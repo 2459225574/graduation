@@ -23,16 +23,10 @@ public class SocketList {
 
     private static LinkedList<SocketConnection> linkedList;
     private static LinkedList<SocketConnection> garbageList; //未绑定用户的物理设备，保存socket，防止垃圾回收socket导致设备不断重连
-//    private static EquipmentMapper equipmentMapper;
     static {
         linkedList = new LinkedList<>();
         garbageList = new LinkedList<>();
     }
-
-//    @Autowired(required = true)
-//    public void setEquipmentMapper(EquipmentMapper equipmentMapper) {
-//        SocketList.equipmentMapper = equipmentMapper;
-//    }
 
     public SocketList(){
         Thread thread = new Thread(new MessageRunable());
@@ -51,15 +45,8 @@ public class SocketList {
 
     public static void addSocket(Socket socket) throws IOException {
         SocketConnection socketConnection = new SocketConnection(socket);
-//        EquipmentAndGroup ue = equipmentMapper.getUserByEquipmentId(socketConnection.getEquipment_id());//查询用户信息
-//        if (ue == null){
-//            garbageList.add(socketConnection);
-//            System.out.println("设备"+socketConnection.getEquipment_id()+"连接到服务器,未绑定家庭组。");
-//            return;
-//        }
-//        socketConnection.setGroup_id(ue.getGroup_id());
         linkedList.add(socketConnection);
-        System.out.println("设备"+socketConnection.getEquipment_id()+"连接到服务器,绑定家庭组为："+socketConnection.getGroup_id());
+        System.out.println("设备"+socketConnection.getEquipment_id()+"连接到服务器");
     }
 
     public void removeSocket(SocketConnection socket){
@@ -77,23 +64,36 @@ public class SocketList {
         }
     }
 
+    public boolean EquipmentOnline(String eId){
+        if(eId == null) return false;
+        for(SocketConnection socketConnection:linkedList){
+            if (eId.equals(socketConnection.getEquipment_id())){
+                if (socketConnection.isConnection()){
+                    return true;
+                }else {
+                    linkedList.remove(socketConnection);
+                }
+            }
+        }
+        return false;
+    }
+
     private class MessageRunable implements Runnable{
         @SneakyThrows
         @Override
         public void run() {
             while (true){
                 try {
-                    Thread.sleep(5000l);
+                    Thread.sleep(10000l);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                System.out.println("run**");
                 for (SocketConnection conn:linkedList){
-                    if (!conn.getSocket().isConnected()){
+                    if (conn.initUserAndEquipment())
+                        System.out.println("设备id："+conn.getEquipment_id());
+                    else
                         linkedList.remove(conn);
-                        continue;
-                    }
-                    conn.initUserAndEquipment();
-                    System.out.println("设备id："+conn.getEquipment_id());
                 }
             }
         }

@@ -111,7 +111,31 @@ public class IotHomeController {
         return toAjax(iotHomeService.RemoveRoleEquipment(funcEt));
     }
 
+    /*
+     * 用户所有可用设备管理详情
+     */
+    @RequestMapping("/listAllEquipment")
+    public TableDataInfo listAllEquipment(FuncEt funcEt){
+        startPage();
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        long user_id = loginUser.getUser().getUserId();
+        funcEt.setUserId(user_id);
+        List<FuncEt> list = iotHomeService.listAllEquipment(funcEt);
+        return getDataTable(list);
+    }
 
+    /*
+     * 户所有可用设备不重复
+     */
+    @RequestMapping("/listAllEquipmentNoRepeat")
+    public TableDataInfo listAllEquipmentNoRepeat(FuncEt funcEt){
+        startPage();
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        long user_id = loginUser.getUser().getUserId();
+        funcEt.setUserId(user_id);
+        List<FuncEt> list = iotHomeService.listAllEquipmentNoRepeat(funcEt);
+        return getDataTable(list);
+    }
 
 
     /**

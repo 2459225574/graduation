@@ -22,4 +22,9 @@ public class FuncEt implements Serializable {
   private String beginTime;
   private String endTime;
   private String status;
+  private String roleName;
+  private String roleKey;
+  private String createBy;
+  private String path;
+  private boolean online;
 }

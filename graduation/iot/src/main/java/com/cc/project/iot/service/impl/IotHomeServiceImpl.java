@@ -1,5 +1,6 @@
 package com.cc.project.iot.service.impl;
 
+import com.cc.project.handware.api.SocketList;
 import com.cc.project.iot.domain.FuncEt;
 import com.cc.project.iot.mapper.IotHomeMapper;
 import com.cc.project.iot.service.IotHomeService;
@@ -19,9 +20,17 @@ import java.util.List;
 public class IotHomeServiceImpl implements IotHomeService {
     @Autowired
     private IotHomeMapper iotHomeMapper;
+
+    @Autowired
+    private SocketList socketList;
+
     @Override
     public List<FuncEt> getFuncEtByUserId(FuncEt funcEt) {
-        return iotHomeMapper.getFuncEtByUserId(funcEt);
+        List<FuncEt> list = iotHomeMapper.getFuncEtByUserId(funcEt);
+        for (FuncEt fe : list){
+            fe.setOnline(socketList.EquipmentOnline(fe.getEId()));
+        }
+        return list;
     }
 
     /*
@@ -29,7 +38,11 @@ public class IotHomeServiceImpl implements IotHomeService {
      */
     @Override
     public List<FuncEt> getRoleEquipmentList(FuncEt funcEt) {
-        return iotHomeMapper.getRoleEquipmentList(funcEt);
+        List<FuncEt> list = iotHomeMapper.getRoleEquipmentList(funcEt);
+        for (FuncEt fe : list){
+            fe.setOnline(socketList.EquipmentOnline(fe.getEId()));
+        }
+        return list;
     }
 
     /*
@@ -67,6 +80,28 @@ public class IotHomeServiceImpl implements IotHomeService {
     @Override
     public int deleteEquipment(FuncEt funcEt) {
         return iotHomeMapper.deleteEquipment(funcEt);
+    }
+    /*
+     * 用户所有可用设备管理详情
+     */
+    @Override
+    public List<FuncEt> listAllEquipment(FuncEt funcEt) {
+        List<FuncEt> list = iotHomeMapper.listAllEquipment(funcEt);
+        for (FuncEt fe : list){
+            fe.setOnline(socketList.EquipmentOnline(fe.getEId()));
+        }
+        return list;
+    }
+    /*
+     * 户所有可用设备不重复
+     */
+    @Override
+    public List<FuncEt> listAllEquipmentNoRepeat(FuncEt funcEt) {
+        List<FuncEt> list = iotHomeMapper.listAllEquipmentNoRepeat(funcEt);
+        for (FuncEt fe : list){
+            fe.setOnline(socketList.EquipmentOnline(fe.getEId()));
+        }
+        return list;
     }
 
 
