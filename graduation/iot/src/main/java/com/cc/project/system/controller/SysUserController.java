@@ -77,6 +77,20 @@ public class SysUserController extends BaseController
         List<SysUser> list = userService.selectUserList(user);
         return getDataTable(list);
     }
+
+    /**
+     * 获取设备组用户列表
+     */
+    @GetMapping("/listRoleUser")
+    public TableDataInfo listRoleUser(SysUser user,long roleId)
+    {
+        startPage();
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        user.setUserId(loginUser.getUser().getUserId());
+        List<SysUser> list = userService.listRoleUser(user,roleId);
+        return getDataTable(list);
+    }
+
     /**
      * 获取陌生好友列表
      */

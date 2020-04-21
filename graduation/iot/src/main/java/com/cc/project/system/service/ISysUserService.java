@@ -140,4 +140,9 @@ public interface ISysUserService
      * 删除好友
      */
     public int delFriends(Long userId, Long[] ids);
+
+    /**
+     * 获取设备组用户列表
+     */
+    List<SysUser> listRoleUser(SysUser user, long roleId);
 }

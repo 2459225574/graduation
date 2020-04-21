@@ -24,31 +24,24 @@ public class SysUser extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 用户ID */
-    @Excel(name = "用户序号", cellType = ColumnType.NUMERIC, prompt = "用户编号")
     private Long userId;
 
-    /** 部门ID */
-    @Excel(name = "部门编号", type = Type.IMPORT)
-    private Long deptId;
+    /** 角色ID */
+    private Long roleId;
 
     /** 用户账号 */
-    @Excel(name = "登录名称")
     private String userName;
 
     /** 用户昵称 */
-    @Excel(name = "用户名称")
     private String nickName;
 
     /** 用户邮箱 */
-    @Excel(name = "用户邮箱")
     private String email;
 
     /** 手机号码 */
-    @Excel(name = "手机号码")
     private String phonenumber;
 
     /** 用户性别 */
-    @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
     private String sex;
 
     /** 用户头像 */
@@ -60,26 +53,17 @@ public class SysUser extends BaseEntity
     /** 盐加密 */
     private String salt;
 
-    /** 帐号状态（0正常 1停用） */
-    @Excel(name = "帐号状态", readConverterExp = "0=正常,1=停用")
+    /** 权限状态（1正常 0停用） */
     private String status;
 
     /** 删除标志（0代表存在 2代表删除） */
     private String delFlag;
 
     /** 最后登陆IP */
-    @Excel(name = "最后登陆IP", type = Type.EXPORT)
     private String loginIp;
 
     /** 最后登陆时间 */
-    @Excel(name = "最后登陆时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Type.EXPORT)
     private Date loginDate;
-
-    /** 部门对象 */
-    @Excels({
-        @Excel(name = "部门名称", targetAttr = "deptName", type = Type.EXPORT),
-        @Excel(name = "部门负责人", targetAttr = "leader", type = Type.EXPORT)
-    })
 
     /** 角色对象 */
     private List<SysRole> roles;
@@ -87,8 +71,6 @@ public class SysUser extends BaseEntity
     /** 角色组 */
     private Long[] roleIds;
 
-    /** 岗位组 */
-    private Long[] postIds;
 
     public SysUser()
     {
@@ -120,14 +102,12 @@ public class SysUser extends BaseEntity
         return userId != null && 1L == userId;
     }
 
-    public Long getDeptId()
-    {
-        return deptId;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setDeptId(Long deptId)
-    {
-        this.deptId = deptId;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 
     @Size(min = 0, max = 30, message = "用户昵称长度不能超过30个字符")
@@ -277,21 +257,11 @@ public class SysUser extends BaseEntity
         this.roleIds = roleIds;
     }
 
-    public Long[] getPostIds()
-    {
-        return postIds;
-    }
-
-    public void setPostIds(Long[] postIds)
-    {
-        this.postIds = postIds;
-    }
     
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("userId", getUserId())
-            .append("deptId", getDeptId())
             .append("userName", getUserName())
             .append("nickName", getNickName())
             .append("email", getEmail())

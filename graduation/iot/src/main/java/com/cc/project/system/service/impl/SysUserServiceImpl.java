@@ -82,6 +82,16 @@ public class SysUserServiceImpl implements ISysUserService
     }
 
     /**
+     * 获取设备组用户列表
+     */
+    @Override
+    public List<SysUser> listRoleUser(SysUser user, long roleId) {
+
+        user.setRoleId(roleId);
+        return userMapper.listRoleUser(user);
+    }
+
+    /**
      * 通过用户名查询用户
      * 
      * @param userName 用户名

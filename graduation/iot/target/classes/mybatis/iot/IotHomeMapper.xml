@@ -3,47 +3,147 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.cc.project.iot.mapper.IotHomeMapper">
+
 	<resultMap id="FuncEtResultMap" type="com.cc.project.iot.domain.FuncEt">
 		<id property="id" column="id"/>
+		<result property="userId" column="user_id"/>
 		<result property="eId" column="e_id"/>
 		<result property="name" column="name"/>
 		<result property="driveId" column="drive_id"/>
 		<result property="type" column="type"/>
 		<result property="location" column="location"/>
 		<result property="description" column="description"/>
+		<result property="status" column="status"/>
 		<result property="time" column="time"/>
-		<result property="deptName" column="dept_name"/>
 	</resultMap>
 
-	<sql id="func_equipment">
-		select fe.id,fe.e_id,fe.description,fe.drive_id,fe.location,fe.time,fe.type,fe.name
-	</sql>
-
-	<!--查询主用户组和其它用户组，sys_user和func_user_dept两张表-->
-	<select id="getFuncEtByUserId" resultMap="FuncEtResultMap">
-		<include refid="func_equipment"></include>
-		,all_group.dept_name from
-		(select fed.*,temp.dept_name from func_et_dept fed left join
-		(
-		(select sd.dept_id,sd.dept_name from sys_dept sd where sd.dept_id = (select su.dept_id from sys_user su where su.user_id = #{user_id}))
-		union
-		(select sd.dept_id,sd.dept_name from(select * from func_user_dept fud WHERE fud.user_id = #{user_id}) temp left join sys_dept sd on temp.dept_id = sd.dept_id)
-		)
-		as temp on fed.dept_id = temp.dept_id where temp.dept_name is not null) as all_group
-		left join func_et fe on all_group.e_id  = fe.id
-		where fe.type = #{funcEt.type}
-		<if test="funcEt.eId != null and funcEt.eId != 'null' and funcEt.eId !=''">
-			 and fe.e_id like concat('%',#{funcEt.eId},'%')
+	<select id="getFuncEtByUserId" parameterType="com.cc.project.iot.domain.FuncEt" resultMap="FuncEtResultMap">
+		select * from hardware_equipment he where he.user_id = #{userId}
+		<if test="eId != null and eId != 'null' and eId !=''">
+			and he.e_id like concat('%',#{eId},'%')
 		</if>
-		<if test="funcEt.name != null and funcEt.name != 'null' and funcEt.name !=''">
-			and fe.name like concat('%',#{funcEt.name},'%')
+		<if test="name != null and name != 'null' and name !=''">
+			and he.name like concat('%',#{name},'%')
 		</if>
-		<if test="funcEt.deptName != null and funcEt.deptName != 'null' and funcEt.deptName !=''">
-			and all_group.dept_name like concat('%',#{funcEt.deptName},'%')
+		<if test="beginTime != null and beginTime != ''">
+			and date_format(he.time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
 		</if>
-		<if test="funcEt.beginTime != null and funcEt.beginTime != '' and funcEt.endTime != null and funcEt.endTime != ''">
-			and fe.time between #{funcEt.beginTime} and #{funcEt.endTime}
+		<if test="endTime != null and endTime != ''">
+			and date_format(he.time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
 		</if>
 	</select>
+
+	<select id="getRoleEquipmentList" parameterType="com.cc.project.iot.domain.FuncEt" resultMap="FuncEtResultMap">
+		select th.*,tr.role_id,if(tr.e_id is null,0,1) as status from
+		(select * from hardware_equipment he where he.user_id = #{userId}) th
+		left join (select * from role_e r where r.role_id = #{roleId}) tr on th.id = tr.e_id
+		where 1 = 1
+		<if test="eId != null and eId != 'null' and eId !=''">
+			and th.e_id like concat('%',#{eId},'%')
+		</if>
+		<if test="name != null and name != 'null' and name !=''">
+			and th.name like concat('%',#{name},'%')
+		</if>
+		<if test="beginTime != null and beginTime != ''">
+			and date_format(th.time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+		</if>
+		<if test="endTime != null and endTime != ''">
+			and date_format(th.time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+		</if>
+	</select>
+
+	<insert id="AddRoleEquipment" parameterType="com.cc.project.iot.domain.FuncEt">
+		insert into role_e(role_id,e_id) values(#{roleId},#{eId})
+	</insert>
+
+	<delete id="RemoveRoleEquipment" parameterType="com.cc.project.iot.domain.FuncEt">
+		delete from role_e where role_id = #{roleId} and e_id = #{eId}
+	</delete>
+
+	<insert id="addEquipment" parameterType="com.cc.project.iot.domain.FuncEt">
+		insert into hardware_equipment(
+		<if test="eId != null and eId != 0">e_id,</if>
+		<if test="userId != null and userId != 0">user_id,</if>
+		<if test="name != null and name != ''">name,</if>
+		<if test="description != null and description != ''">description,</if>
+		<if test="location != null and location != ''">location,</if>
+		<if test="type != null and type != ''">type_id,</if>
+		time
+		)values(
+		<if test="eId != null and eId != 0">#{eId},</if>
+		<if test="userId != null and userId != 0">#{userId},</if>
+		<if test="name != null and name != ''">#{name},</if>
+		<if test="description != null and description != ''">#{description},</if>
+		<if test="location != null and location != ''">#{location},</if>
+		<if test="type != null and type != ''">#{type},</if>
+		sysdate()
+		)
+	</insert>
+
+	<update id="modifyEquipment" parameterType="com.cc.project.iot.domain.FuncEt">
+		update hardware_equipment
+		<set>
+			<if test="eId != null and eId != 0">e_id = #{eId},</if>
+			<if test="name != null and name != ''">name = #{name},</if>
+			<if test="description != null and description != ''">description = #{description},</if>
+			<if test="location != null and location != ''">location = #{location},</if>
+			<if test="type != null and type != ''">type_id = #{type},</if>
+			update_time = sysdate()
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="deleteEquipment" parameterType="com.cc.project.iot.domain.FuncEt">
+		delete from hardware_equipment where id = #{id}
+	</delete>
+
+
+
+
+
+
+
+	<!--<resultMap id="FuncEtResultMap" type="com.cc.project.iot.domain.FuncEt">-->
+		<!--<id property="id" column="id"/>-->
+		<!--<result property="eId" column="e_id"/>-->
+		<!--<result property="name" column="name"/>-->
+		<!--<result property="driveId" column="drive_id"/>-->
+		<!--<result property="type" column="type"/>-->
+		<!--<result property="location" column="location"/>-->
+		<!--<result property="description" column="description"/>-->
+		<!--<result property="time" column="time"/>-->
+		<!--<result property="deptName" column="dept_name"/>-->
+	<!--</resultMap>-->
+
+	<!--<sql id="func_equipment">-->
+		<!--select fe.id,fe.e_id,fe.description,fe.drive_id,fe.location,fe.time,fe.type,fe.name-->
+	<!--</sql>-->
+
+	<!--&lt;!&ndash;查询主用户组和其它用户组，sys_user和func_user_dept两张表&ndash;&gt;-->
+	<!--<select id="getFuncEtByUserId" resultMap="FuncEtResultMap">-->
+		<!--<include refid="func_equipment"></include>-->
+		<!--,all_group.dept_name from-->
+		<!--(select fed.*,temp.dept_name from func_et_dept fed left join-->
+		<!--(-->
+		<!--(select sd.dept_id,sd.dept_name from sys_dept sd where sd.dept_id = (select su.dept_id from sys_user su where su.user_id = #{user_id}))-->
+		<!--union-->
+		<!--(select sd.dept_id,sd.dept_name from(select * from func_user_dept fud WHERE fud.user_id = #{user_id}) temp left join sys_dept sd on temp.dept_id = sd.dept_id)-->
+		<!--)-->
+		<!--as temp on fed.dept_id = temp.dept_id where temp.dept_name is not null) as all_group-->
+		<!--left join func_et fe on all_group.e_id  = fe.id-->
+		<!--where fe.type = #{funcEt.type}-->
+		<!--<if test="funcEt.eId != null and funcEt.eId != 'null' and funcEt.eId !=''">-->
+			 <!--and fe.e_id like concat('%',#{funcEt.eId},'%')-->
+		<!--</if>-->
+		<!--<if test="funcEt.name != null and funcEt.name != 'null' and funcEt.name !=''">-->
+			<!--and fe.name like concat('%',#{funcEt.name},'%')-->
+		<!--</if>-->
+		<!--<if test="funcEt.deptName != null and funcEt.deptName != 'null' and funcEt.deptName !=''">-->
+			<!--and all_group.dept_name like concat('%',#{funcEt.deptName},'%')-->
+		<!--</if>-->
+		<!--<if test="funcEt.beginTime != null and funcEt.beginTime != '' and funcEt.endTime != null and funcEt.endTime != ''">-->
+			<!--and fe.time between #{funcEt.beginTime} and #{funcEt.endTime}-->
+		<!--</if>-->
+	<!--</select>-->
     
 </mapper> 

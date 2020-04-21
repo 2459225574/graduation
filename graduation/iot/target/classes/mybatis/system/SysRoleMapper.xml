@@ -85,6 +85,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  		delete from sys_role where role_id = #{roleId}
  	</delete>
 
+	<insert id="addRoleMember" parameterType="long">
+		insert sys_user_role(role_id,user_id) values(#{param1},#{param2})
+	</insert>
+	<delete id="deleteRoleMember" parameterType="long">
+		delete from sys_user_role where role_id = #{param1} and user_id = #{param2}
+	</delete>
+
 
 
 

@@ -41,16 +41,78 @@ public class IotHomeController {
     private TokenService tokenService;
 
 
+    /*
+     *查询用户的设备列表
+     */
     @RequestMapping("/equipmentList")
-    public TableDataInfo getEquipment(FuncEt funcEt,HttpServletRequest request){
-        Map map = request.getParameterMap();
-        System.out.println(map.toString());
+    public TableDataInfo getEquipment(FuncEt funcEt){
         startPage();
         LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
         long user_id = loginUser.getUser().getUserId();
-        List<FuncEt> list = iotHomeService.getFuncEtByUserId(user_id,funcEt);
+        funcEt.setUserId(user_id);
+        List<FuncEt> list = iotHomeService.getFuncEtByUserId(funcEt);
         return getDataTable(list);
     }
+
+    /*
+     * 角色的设备管理
+     */
+    @RequestMapping("/listRoleEquipment")
+    public TableDataInfo listRoleEquipment(FuncEt funcEt){
+        startPage();
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        long user_id = loginUser.getUser().getUserId();
+        funcEt.setUserId(user_id);
+        List<FuncEt> list = iotHomeService.getRoleEquipmentList(funcEt);
+        return getDataTable(list);
+    }
+
+    /*
+     * 添加设备到设备组
+     */
+    @RequestMapping("/AddRoleEquipment")
+    public AjaxResult AddRoleEquipment(FuncEt funcEt){
+
+        return toAjax(iotHomeService.AddRoleEquipment(funcEt));
+    }
+
+    /*
+     * 添加设备
+     */
+    @RequestMapping("/addEquipment")
+    public AjaxResult addEquipment(FuncEt funcEt){
+        LoginUser loginUser = tokenService.getLoginUser(ServletUtils.getRequest());
+        long user_id = loginUser.getUser().getUserId();
+        funcEt.setUserId(user_id);
+        return toAjax(iotHomeService.addEquipment(funcEt));
+    }
+
+    /*
+     * 修改设备
+     */
+    @RequestMapping("/modifyEquipment")
+    public AjaxResult modifyEquipment(FuncEt funcEt){
+        return toAjax(iotHomeService.modifyEquipment(funcEt));
+    }
+
+    /*
+     * 删除设备
+     */
+    @RequestMapping("/deleteEquipment")
+    public AjaxResult deleteEquipment(FuncEt funcEt){
+        return toAjax(iotHomeService.deleteEquipment(funcEt));
+    }
+
+    /*
+     * 把设备移除设备组
+     */
+    @RequestMapping("/RemoveRoleEquipment")
+    public AjaxResult RemoveRoleEquipment(FuncEt funcEt){
+        return toAjax(iotHomeService.RemoveRoleEquipment(funcEt));
+    }
+
+
+
 
     /**
      * 设置请求分页数据
@@ -78,5 +140,16 @@ public class IotHomeController {
         rspData.setRows(list);
         rspData.setTotal(new PageInfo(list).getTotal());
         return rspData;
+    }
+
+    /**
+     * 响应返回结果
+     *
+     * @param rows 影响行数
+     * @return 操作结果
+     */
+    protected AjaxResult toAjax(int rows)
+    {
+        return rows > 0 ? AjaxResult.success() : AjaxResult.error();
     }
 }

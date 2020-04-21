@@ -146,75 +146,20 @@ public class SysRoleServiceImpl implements ISysRoleService
         return c;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /*
+     *添加用户到设备组
+     */
+    @Override
+    public int addRoleMember(long roleId, long user_id) {
+        return roleMapper.addRoleMember(roleId,user_id);
+    }
+    /*
+     *把用户从设备组移除
+     */
+    @Override
+    public int deleteRoleMember(long roleId, long user_id) {
+        return roleMapper.deleteRoleMember(roleId,user_id);
+    }
 
 
     /**

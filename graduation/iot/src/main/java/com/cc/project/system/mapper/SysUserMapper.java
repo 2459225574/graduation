@@ -121,4 +121,9 @@ public interface SysUserMapper
     public long checkFriendExist(long user_id,long friend_id);
 
     public int delFriends(Long userId, long id);
+
+    /**
+     * 获取设备组用户列表
+     */
+    List<SysUser> listRoleUser(SysUser user);
 }

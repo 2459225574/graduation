@@ -111,7 +111,23 @@ public class SysRoleController extends BaseController
     }
 
 
+    /*
+    *添加用户到设备组
+     */
+    @RequestMapping("/addRoleMember")
+    public AjaxResult addRoleMember(long roleId,long user_id)
+    {
+        return toAjax(roleService.addRoleMember(roleId,user_id));
+    }
 
+    /*
+     *把用户从设备组移除
+     */
+    @RequestMapping("/removeRoleMember")
+    public AjaxResult removeRoleMember(long roleId,long user_id)
+    {
+        return toAjax(roleService.deleteRoleMember(roleId,user_id));
+    }
 
 
 

@@ -104,4 +104,14 @@ public interface SysRoleMapper
      * @return 结果
      */
     public int deleteRoleByIds(Long[] roleIds);
+
+    /*
+     *添加用户到设备组
+     */
+    public int addRoleMember(long roleId, long user_id);
+
+    /*
+     *把用户从设备组移除
+     */
+    public int deleteRoleMember(long roleId, long user_id);
 }
