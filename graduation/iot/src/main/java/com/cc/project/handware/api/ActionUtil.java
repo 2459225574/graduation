@@ -23,21 +23,26 @@ public class ActionUtil {
         this.socketList = socketList;
     }
 
-    public static String move(String eid,Integer action){
+    public static String order(String eid,Integer action){
         SocketConnection socketConnection = socketList.getSocketByEid(eid);
         if (socketConnection == null){
             return "操作的设备未连接或者未注册";
         }
         try {
-            if (action == 2)
+            if (action == OrderSet.MOVE_FORWARD)
                 socketConnection.writeByte(OrderSet.MOVE_FORWARD);
-            else if(action == 3){
+            else if(action == OrderSet.MOVE_BACK){
                 socketConnection.writeByte(OrderSet.MOVE_BACK);
-            } else if (action == 4) {
+            } else if (action == OrderSet.MOVE_LEFT) {
                 socketConnection.writeByte(OrderSet.MOVE_LEFT);
-            }else if (action == 5){
+            }else if (action == OrderSet.MOVE_RIGHT){
                 socketConnection.writeByte(OrderSet.MOVE_RIGHT);
-            }else {
+            }else if (action == OrderSet.OPEN){
+                socketConnection.writeByte(OrderSet.OPEN);
+            }else if (action == OrderSet.CLOSE){
+                socketConnection.writeByte(OrderSet.CLOSE);
+            }
+            else {
                 return "操作不存在";
             }
             return "success";

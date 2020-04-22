@@ -20,7 +20,7 @@ public class CarDriveController {
     @RequestMapping("/operation")
     public AjaxResult move(@RequestParam("action") Integer action,@RequestParam String eId){
         System.out.println(action+"             "+eId);
-        String result = ActionUtil.move(eId,action);
+        String result = ActionUtil.order(eId,action);
         return AjaxResult.success(result);
     }
 }

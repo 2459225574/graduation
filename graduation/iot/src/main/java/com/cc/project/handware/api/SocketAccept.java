@@ -38,6 +38,7 @@ public class SocketAccept {
         public void run() {
             while (true){
                 Socket socket = SERVER_SOCKET.accept();//等待设备连接
+                socket.setSoTimeout(3000);
                 System.out.println("****************************************************"+socket+"连接到服务器****************************************************");
                 SocketList.addSocket(socket);//保存到设备列表中
             }

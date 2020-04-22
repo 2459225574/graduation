@@ -46,7 +46,7 @@ public class SocketConnection {
 
     public boolean isConnection(){
         try {
-            this.socket.sendUrgentData(Integer.MAX_VALUE);
+            writeByte(OrderSet.IS_CONN);
             return true;
         } catch (IOException e) {
             return false;
